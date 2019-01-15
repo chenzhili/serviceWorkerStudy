@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>lazy load和throttle和debounce</title>
+    <style>
+        body{
+            padding:0;
+            margin:0;
+        }
+        #test{
+            width:100px;
+            height:100px;
+            margin-top:1000px;
+            border:1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="test"></div>
+    <script>
+        // 图片的 懒加载
+        function lazyLoad(dom){
+            const viewHeight = window.innerHeight || doucment.documentElement.clientHeight;
+            const top = dom.getBoundingClientRect().top;
+            if(viewHeight - top >= 0){
+                dom.src = "src";
+                dom.backgroundImage = "src";
+            }
+        }
+        // 简单的 节流
+        function throttle(callback,time){
+            let prev = 0;
+            return function(){
+                let now = +new Date();
+                if(now - prev >= time){
+                    prev = now;
+                    callback();
+                }
+            }
+        }
+        window.onload = function(){
+            const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+            console.log(viewHeight);
+            const test = document.getElementById("test");
+            
+        }
+    </script>
+</body>
+</html>

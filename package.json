@@ -1,0 +1,8 @@
+{
+  "name": "serviceWorkerStudy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/chenzhili/serviceWorkerStudy.git",
+  "author": "chenzhili <1845882620@qq.com>",
+  "license": "MIT"
+}
