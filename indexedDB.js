@@ -12,7 +12,7 @@ request.onsuccess = function (event) {
     console.log(db);
     add(db);
     // getAll(db);
-    createIndex(db);
+    selectByIndex(db);
 }
 request.onupgradeneeded = function (event) {
     console.log(event);
@@ -26,6 +26,7 @@ request.onupgradeneeded = function (event) {
             }
         );
     }
+    objectStore.createIndex("indexAge","age",{unique:false});
     console.log(db);
 }
 /* 
@@ -67,7 +68,7 @@ function read(db) {
     };
 }
 function getAll(db){
-    const objectStore = db.transaction(["person"],"readwrite").objectStore("person");
+    const objectStore = db.transaction(["person"],"readOnly").objectStore("person");
     objectStore.openCursor().onsuccess = function(event){
         let cursor = event.target.result;
         if(cursor){
@@ -83,15 +84,20 @@ function getAll(db){
 /* 
     索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录。如果不建立索引，默认只能搜索主键（即从主键取值）。
 */
-function createIndex(db){
-    const objectStore = db.transaction(["person"]).objectStore("person");
-    objectStore.createIndex("name","name",{unique:false})
+function selectByIndex(db){
+    let objectStore = db.transaction(["person"]).objectStore("person");
+    // objectStore.createIndex("name","name",{unique:false})
     // 上面代码中，IDBObject.createIndex()的三个参数分别为索引名称、索引所在的属性、配置对象（说明该属性是否包含重复的值）。
-    const index = objectStore.index("name");
-    const request = index.get("张三"); 
+    // console.log(objectStore);
+    let index = objectStore.index("indexAge");
+    let request = index.openCursor(IDBKeyRange.only(133));
+    // let request = index.get(133); 
     request.onsuccess = function(e){
-        let result = e.target.result;
-        console.log(result);
+        let cursor = e.target.result;
+        if(cursor){
+            // console.log(cursor);
+            cursor.continue();
+        }
     }
     request.onerror = function(e){
         console.log("索引查找出错了");
