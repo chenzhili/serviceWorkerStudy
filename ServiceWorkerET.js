@@ -65,33 +65,55 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener("install",function(event){
     event.waitUntil(
-        caches.open(cachesName).then(function(cache){
-            return cache.addAll([
-                "/",
-                "img/1.png",
-                "img/2.png",
-                "indexedDB.js",
-                "main.js",
-                "serviceWorker.js",
-                "utils.js"
-            ]);
-        })
+        Promise.all([
+            self.skipWaiting(),
+            caches.open(cachesName).then(function(cache){
+                return cache.addAll([
+                    "/",
+                    "img/1.png",
+                    "img/2.png",
+                    "indexedDB.js",
+                    "main.js",
+                    "serviceWorker.js",
+                    "utils.js"
+                ]);
+            })
+        ])
     )
 });
 self.addEventListener("fetch",function(event){
-    event.respondWidth(
+    event.respondWith(   
         // 这里 match 一定要注意，这个在匹配 缓存中的 req 的时候，这里 匹配得上，就算 文件 内容发生变化了，这里也会 match到，就不会 更新 新的 变化，所以这里 需要 给缓存的东西加上版本号，用到 webpack 的时候，不需要考虑这里写，有 hash，chunk；
         caches.match(event.request).then(res=>{
-            if(res)return res;
+            // 这里的判断 先不要了，每次都去 请求资源
+            // if(res)return res;
             const req = event.request.clone();
             return fetch(req).then(httpRes=>{
                 if(!httpRes || httpRes.status !== 200)return httpRes;
                 const resClone = httpRes.clone();
                 caches.open(cachesName).then(cache=>{
-                    cache.put(event.request,httpRes);
+                    cache.put(event.request,resClone);
                 })
                 return httpRes;
             })
         })
+    )
+});
+
+// 这种更新 所有的 存在页面，这里需要注意浏览器也会 缓存 旧的 serviceWorker
+self.addEventListener("activate",function(event){
+    event.waitUntil(
+        Promise.all([
+            self.clients.claim(),
+            caches.keys().then(function(cacheList){
+                return Promise.all(
+                    cacheList.map(function(cacheName){
+                        if(cacheName !== cachesName){
+                            return caches.delete(caches.delete(cacheName))
+                        }
+                    })
+                )
+            })
+        ])
     )
 });

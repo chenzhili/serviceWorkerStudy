@@ -14,7 +14,7 @@ window.onload = function(){
         });
         return fragmentDoc;
     }
-    container.appendChild(generateList());
+    container.appendChild(generateList()); 
     let lazyLoad = ()=>{
         const list = container.querySelectorAll("img");
         const viewHeight = window.innerHeight || document.documentElement.clientHeight;
